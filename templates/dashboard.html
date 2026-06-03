@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CatShop Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Nunito',sans-serif;}
+body{background:#faf7ff;min-height:100vh;}
+.topbar{background:white;border-radius:25px;margin:20px;padding:18px 30px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 24px rgba(255,79,135,.10);}
+.logo{font-size:26px;font-weight:800;color:#ff4f87;}
+.menu{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.menu a{text-decoration:none;color:#555;background:#fff5f8;padding:9px 18px;border-radius:30px;font-weight:700;font-size:.88rem;transition:.25s;}
+.menu a:hover,.menu a.active{background:#ff4f87;color:white;}
+.menu a.disabled{background:#f0f0f0;color:#bbb;cursor:not-allowed;pointer-events:none;}
+.badge-role{padding:6px 14px;border-radius:20px;font-size:.78rem;font-weight:800;}
+.badge-role.admin{background:#fff0f7;color:#ff4f87;}
+.badge-role.pengguna{background:#f0f7ff;color:#3b82f6;}
+.main-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;padding:20px;}
+.hero{background:linear-gradient(135deg,#ff82a9,#ffb5c8);border-radius:30px;padding:35px;color:white;box-shadow:0 10px 25px rgba(0,0,0,.08);}
+.hero h2{font-weight:800;}
+.hero .role-badge{display:inline-block;background:rgba(255,255,255,.3);color:white;padding:4px 14px;border-radius:20px;font-size:.82rem;font-weight:700;margin-top:8px;}
+.circle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:20px;}
+.circle-card{background:white;border-radius:50%;width:180px;height:180px;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 10px 20px rgba(0,0,0,.08);margin:auto;}
+.circle-card h3{margin:8px 0;font-weight:800;color:#ff4f87;}
+.panel{background:white;border-radius:25px;padding:25px;box-shadow:0 10px 25px rgba(0,0,0,.08);}
+.order-item{background:#fff5f8;border-radius:20px;padding:15px;margin-bottom:15px;}
+.order-item h6{font-weight:700;margin-bottom:2px;}
+.bottom{margin:20px;background:white;border-radius:25px;padding:25px;box-shadow:0 10px 25px rgba(0,0,0,.08);}
+.akses-banner{background:linear-gradient(135deg,#e8f4fd,#f0e8ff);border-radius:20px;padding:20px 24px;margin:0 20px 20px;display:flex;align-items:center;gap:14px;border:2px dashed #a0c4f8;}
+.akses-banner .icon{font-size:2rem;flex-shrink:0;}
+.akses-banner p{margin:0;font-size:.9rem;color:#3b82f6;font-weight:600;}
+.akses-banner b{color:#1d4ed8;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">🐱 CatShop</div>
+  <div class="menu" id="navMenu"></div>
+</div>
+
+<div class="akses-banner" id="aksesInfo" style="display:none">
+  <div class="icon">ℹ️</div>
+  <p>Kamu login sebagai <b>Pengguna</b>. Kamu hanya dapat mengakses <b>Dashboard</b> dan <b>Katalog Produk</b>. Fitur Pesanan & Customer hanya untuk Admin.</p>
+</div>
+
+<div class="main-grid">
+  <div>
+    <div class="hero">
+      <h2 id="nama-user">Selamat Datang 🐾</h2>
+      <p>Pantau stok, pesanan, dan perkembangan toko kucingmu.</p>
+      <span class="role-badge" id="roleBadge"></span>
+    </div>
+    <div class="circle-grid">
+      <div class="circle-card">🐱<h3 id="statProduk">-</h3>Produk</div>
+      <div class="circle-card">🛒<h3 id="statPesanan">-</h3>Pesanan</div>
+      <div class="circle-card">👥<h3 id="statCustomer">-</h3>Customer</div>
+      <div class="circle-card">💰<h3 id="statOmzet">-</h3>Omzet</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h5 class="mb-4">Pesanan Masuk</h5>
+    <div id="pesananMasuk"></div>
+  </div>
+</div>
+
+<div class="bottom">
+  <h5 class="mb-4">Produk Terlaris</h5>
+  <table class="table">
+    <thead><tr><th>Produk</th><th>Stok</th><th>Terjual</th></tr></thead>
+    <tbody id="tabelTerlaris"></tbody>
+  </table>
+</div>
+
+<script>
+// ── GANTI: localStorage → sessionStorage + fetch Flask API ──
+const nama = sessionStorage.getItem('namaUser');
+const role = sessionStorage.getItem('roleUser');
+if(!nama){ window.location.href='login.html'; }
+
+const isAdmin = role === 'Admin';
+
+/* ── TOPBAR MENU ── */
+const navMenu = document.getElementById('navMenu');
+navMenu.innerHTML = `
+  <a href="dashboard.html" class="active">Dashboard</a>
+  <a href="produk.html">Produk</a>
+  ${isAdmin ? '<a href="pesanan.html">Pesanan</a>' : '<a class="disabled" title="Hanya Admin">Pesanan 🔒</a>'}
+  ${isAdmin ? '<a href="customer.html">Customer</a>' : '<a class="disabled" title="Hanya Admin">Customer 🔒</a>'}
+  <span class="badge-role ${isAdmin?'admin':'pengguna'}">${isAdmin?'👑 Admin':'👤 Pengguna'}</span>
+  <a href="#" onclick="logout()">Logout</a>
+`;
+
+/* ── HERO ── */
+document.getElementById('nama-user').innerText = 'Selamat Datang, ' + nama + ' 🐾';
+document.getElementById('roleBadge').textContent = isAdmin ? '👑 Admin' : '👤 Pengguna';
+if(!isAdmin){ document.getElementById('aksesInfo').style.display='flex'; }
+
+/* ── LOAD STATS DARI FLASK ── */
+async function loadDashboard(){
+  try {
+    const res  = await fetch('/api/dashboard', { credentials: 'include' });
+    const json = await res.json();
+    if(!res.ok){ window.location.href='login.html'; return; }
+    const d = json.data;
+
+    document.getElementById('statProduk').textContent   = d.produk;
+    document.getElementById('statPesanan').textContent  = d.pesanan;
+    document.getElementById('statCustomer').textContent = d.customer;
+    const jt = (d.omzet / 1000000).toFixed(1);
+    document.getElementById('statOmzet').textContent    = jt + 'jt';
+
+    // Pesanan masuk
+    document.getElementById('pesananMasuk').innerHTML =
+      d.pesananMasuk.map(p => `
+        <div class="order-item">
+          <h6>${p.customer}</h6>
+          <small>${p.produk} • Rp ${Number(p.total).toLocaleString('id-ID')}</small>
+        </div>`).join('') || '<p class="text-muted">Belum ada pesanan.</p>';
+
+    // Tabel terlaris
+    document.getElementById('tabelTerlaris').innerHTML =
+      d.produkTerlaris.map(p => `
+        <tr><td>${p.nama}</td><td>${p.stok}</td><td>${p.terjual}</td></tr>`).join('');
+  } catch(e){
+    console.error('Gagal load dashboard:', e);
+  }
+}
+
+async function logout(){
+  await fetch('/api/logout', { method:'POST', credentials:'include' });
+  sessionStorage.clear();
+  window.location.href='login.html';
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
