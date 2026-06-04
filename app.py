@@ -17,10 +17,10 @@ app.secret_key = 'catshop_secret_2025'
 CORS(app, supports_credentials=True)
 
 # ── KONFIGURASI MySQL (Railway) ────────────────────────────────
-app.config['MYSQL_HOST']        = os.environ.get('MYSQLHOST', 'localhost')
-app.config['MYSQL_USER']        = os.environ.get('MYSQLUSER', 'root')
-app.config['MYSQL_PASSWORD']    = os.environ.get('MYSQLPASSWORD', '')
-app.config['MYSQL_DB']          = os.environ.get('MYSQLDATABASE', 'catshop_db')
+app.config['MYSQL_HOST']        = os.environ.get('MYSQLHOST', 'sql12.freesqldatabase.com')
+app.config['MYSQL_USER']        = os.environ.get('MYSQLUSER', 'sql12829289')
+app.config['MYSQL_PASSWORD']    = os.environ.get('MYSQLPASSWORD', 'AChGbC8gG1')
+app.config['MYSQL_DB']          = os.environ.get('MYSQLDATABASE', 'sql12829289')
 app.config['MYSQL_PORT']        = int(os.environ.get('MYSQLPORT', 3306))
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
